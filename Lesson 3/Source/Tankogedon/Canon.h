@@ -18,6 +18,7 @@ public:
 	ACanon();
 	void Fire();
 	void FireSpecial();
+	void FireQueue();
 	bool IsReadyToFire();
 	void Reload();
 	void ProcessAmmo();
@@ -47,6 +48,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fire params");
 	float Ammo = 6.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fire params");
+	int32 Queue = 3; //Количество снарядов объединённых в очередь
+
 	bool bReadyToFire = true;
 	FTimerHandle ReloadTimer;
+	FTimerHandle IntetvalShotsTimer;
+	int32 queue = Queue;
+	float ammo = Ammo;
 };
