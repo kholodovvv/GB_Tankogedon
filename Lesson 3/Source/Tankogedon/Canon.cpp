@@ -27,16 +27,14 @@ void ACanon::Fire()
 		return;
 	}
 
-	if (CannonType == ECanonType::FireProjectile || Ammo >= FireRate) {
+	if (CannonType == ECanonType::FireProjectile) {
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Purple, "Fire projectile");
 		ProcessAmmo();
-	}else if(CannonType == ECanonType::FireTrace || Ammo >= FireRate) {
+	}else if(CannonType == ECanonType::FireTrace) {
 		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, "Fire trace");
 		ProcessAmmo();
 	}
 
-	/*bReadyToFire = false;
-	GetWorldTimerManager().SetTimer(ReloadTimer, this, &ACanon::Reload, FireRate, false);*/
 }
 
 void ACanon::FireSpecial()
@@ -44,14 +42,24 @@ void ACanon::FireSpecial()
 	if (!IsReadyToFire()) {
 		return;
 	}
+	else {
 
-	if (Ammo > 0) {
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Green, "Fire special");
+		GetWorldTimerManager().SetTimer(IntetvalShotsTimer, this, &ACanon::FireQueue, 1.0f, true); //интервал между выпуском снарядов
 		ProcessAmmo();
 	}
 
-	/*bReadyToFire = false;
-	GetWorldTimerManager().SetTimer(ReloadTimer, this, &ACanon::Reload, FireRate, false);*/
+}
+
+void ACanon::FireQueue()
+{
+	if (queue < 1) {
+		GetWorldTimerManager().ClearTimer(IntetvalShotsTimer);
+		queue = Queue;
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, "Fire queue"); 
+		queue -= 1;
+	}
 }
 
 bool ACanon::IsReadyToFire()
@@ -61,22 +69,22 @@ bool ACanon::IsReadyToFire()
 
 void ACanon::Reload()
 {
-	Ammo = 6;
-	UE_LOG(LogTemp, Warning, TEXT("Ammo Reload: %f"), Ammo);
+	ammo = Ammo;
+	UE_LOG(LogTemp, Warning, TEXT("Ammo Reload: %f"), ammo);
 	bReadyToFire = true;
 }
 
 void ACanon::ProcessAmmo()
 {
-	Ammo = Ammo - FireRate;
+	ammo = ammo - FireRate;
 
-	if (Ammo >= FireRate) {
-		UE_LOG(LogTemp, Warning, TEXT("Ammo: %f"), Ammo);
+	if (ammo >= FireRate) {
+		UE_LOG(LogTemp, Warning, TEXT("Ammo: %f"), ammo);
 	}
 	else {
 		bReadyToFire = false;
 		//Автоматическая перезарядка
-		//GetWorldTimerManager().SetTimer(ReloadTimer, this, &ACanon::Reload, FireRate, false);
+		GetWorldTimerManager().SetTimer(ReloadTimer, this, &ACanon::Reload, FireRate, false);
 	}
 
 }
